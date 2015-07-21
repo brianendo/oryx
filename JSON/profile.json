@@ -1,0 +1,72 @@
+{
+    "profile": {
+        "name": "chris",
+        "bio": "I love doing esoteric stuff",
+        "followers": [
+            1233,
+            3312,
+            1213,
+            1234,
+            "etc"
+        ],
+        "following": [
+            4333,
+            4312,
+            1243,
+            8434,
+            "etc"
+        ],
+        "activity": [
+            {
+                "type": 1,
+                "name": "Gareth Emery",
+                "id": 14231,
+                "image": "23dh78iuhd8723e",
+                "bookmark": 1
+            },
+            {
+                "type": 2,
+                "id": 16231,
+                "name": "Chuckie",
+                "image": "e3hek2j382heqe",
+                "bookmark": 0
+            },
+            {
+                "type": 3,
+                "id": 16231,
+                "name": "Trap City",
+                "image": "wrh78sfuhds2fse",
+                "bookmark": 0
+            }
+        ],
+        "notifications": [
+            {
+                "uid": 2432,
+                "name": "jeremy",
+                "action": 1,
+                "follow": 0
+            },
+            {
+                "uid": 6345,
+                "name": "brian",
+                "action": 1,
+                "follow": 1
+            },
+            {
+                "uid": 5345,
+                "name": "blake",
+                "action": 2,
+                "event": "Gareth Emery",
+                "eventid": 2432
+            },
+            {
+                "uid": 2084,
+                "name": "john",
+                "action": 3,
+                "event": "Trap City",
+                "eventid": 2984
+            }
+        ]
+    },
+    "response": 1
+}

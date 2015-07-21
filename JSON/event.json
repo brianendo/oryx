@@ -1,0 +1,41 @@
+{
+    "21": 1,
+    "name": "Gareth Emery",
+    "authorid": 2342,
+    "author": "1015Folsom",
+    "venue": "1015 Folsom",
+    "image": "23dh78iuhd8723e",
+    "friends": [
+        "Brian",
+        "Chris",
+        "etc",
+        "etc",
+        "etc",
+        "etc",
+        "etc"
+    ],
+    "date": "2015-08-04",
+    "time": {
+        "start": "10pm",
+        "end": "3am"
+    },
+    "genre": "EDM",
+    "lineup": [
+        {
+            "name": "Don Diablo",
+            "id": 2438
+        },
+        {
+            "name": "Flume",
+            "id": 9834
+        }
+    ],
+    "price": 1,
+    "drinks": 1,
+    "location": "1015 Folsom St. San Fransisco, CA 94103",
+    "endorsements": 31,
+    "similar": {
+        "name": "Trap City",
+        "image": "23dh78iuhd8723e"
+    }
+}

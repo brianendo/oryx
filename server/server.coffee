@@ -29,7 +29,7 @@ app.get '/', (req, res) ->
 		htmlform = String data
 		console.log htmlform
 		res.send htmlform
-		
+###		
 app.post '/addfriend', (req, res) ->
 	json = JSON.parse req.body
 	mongoose.connect 'mongodb://localhost:27017/oryx', (err, db) ->	
@@ -37,6 +37,7 @@ app.post '/addfriend', (req, res) ->
 			User.update {user: json.user}, {friends: $append json.friend}, (err, result) ->
 				if !err
 					req.json result
+###
 
 app.post '/addevent', (req, res) ->
 
@@ -68,11 +69,8 @@ app.get '/feed', (req, res) ->
 	feed = []
 	mongoose.connect 'mongodb://localhost:27017/oryx', (err, db) ->
 			console.log "We are connected" if !err
-			User.find {} (err, result) ->
-				result.forEach friend ->
-					feed.append friend.posts
-					Event.find {id: in feed}, {order: bytimestamp desc}, (err, events) ->
-						res.json events			
+			Event.find {}, (err, events) ->
+				res.json events			
 
 server = app.listen 2999, () ->
 	host = server.address().address

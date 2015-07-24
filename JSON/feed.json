@@ -1,6 +1,6 @@
 {
     "posts": [
-        {
+        { "post": {
             "id": 12345,
             "uid": 4235,
             "username": "brian",
@@ -24,8 +24,10 @@
         },
         {
             "id": 9782,
-            "uid": 4234,
-            "username": "InfusionLounge",
+            "uid": "",
+            "username": "",
+            "author": 4234,
+            "authorname": "InfusionLounge",
             "name": "Gareth Emery",
             "attendees": [
                 6434,
@@ -34,6 +36,7 @@
             "endorsements": 4,
             "bookmark": 0
         }
+    }
     ],
     "response": 1
 }

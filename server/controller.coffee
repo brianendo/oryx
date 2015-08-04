@@ -1,35 +1,32 @@
 coffee_script = require 'coffee-script'
 http = require 'http'
-url = require 'url'
 express = require 'express'
 mongo = require 'mongodb'
 #grid = mongo.Grid
 mongoose = require 'mongoose'
 assert = require 'assert'
 #formidable = require 'formidable'
-qt = require 'quickthumb'
-fs = require 'fs-extra'
-fsn = require 'fs'
-util = require 'util'
+#util = require 'util'
 jade = require 'jade'
 passport = require 'passport'
+FacebookStrategy = require('passport-facebook').Strategy
 
 Event = require './models/event_model.coffee'
 User = require './models/user_model.coffee'
 
-`
-passport.use(new FacebookStrategy({
-    clientID: 975386195846106,
-    clientSecret: "247f2b170ff3429fe6a4cdebca425325",
-    callbackURL: "http://localhost:2999/auth/facebook/callback",
-    enableProof: false
-  },
-  function(accessToken, refreshToken, profile, done) {
-    User.findOrCreate({ facebookId: profile.id }, function (err, user) {
-      return done(err, user);
-    });
-  }
-));`
+passport.use new FacebookStrategy { clientID: 975386195846106, clientSecret: "247f2b170ff3429fe6a4cdebca425325", callbackURL: "http://jackpack.org:2999/auth/facebook/callback", enableProof: false }, (accessToken, refreshToken, profile, done) ->
+		User.findOrCreate { facebookId: profile.id }, (err, user) ->	
+			mongoose.connect 'mongodb://localhost:27017/oryx', (err, db) ->
+				console.log "We are connected" if !err
+				User.findOne {fb : user.id}, (err, user) ->
+					if user == null				
+						newuser = new User({fb : user.id, name : { first: user.name.givenName, last: user.name.familyName }, email: user.email[0] })
+						newuser.save (err, result) ->
+									assert.equal err, null 
+									console.log "Created a new user"
+						return done(err, user)
+					else 
+						return done(err, user)
 
 MongoClient = mongo.MongoClient
 #ObjectId = require('mongodb').ObjectID
@@ -37,13 +34,25 @@ MongoClient = mongo.MongoClient
 title = ''
 
 app = express()
-app.use qt.static( __dirname + '/' )
+app.use express.static( __dirname + '/' )
 app.locals.title = 'Oryx'
 app.set('views', './views')
 app.set 'view engine', 'jade'
 
 app.get '/', (req, res) ->
-	res.render 'index.jade', {title: "index", action: "/auth/facebook", submit: "login" }
+	if !req.user
+		res.render 'index.jade', {title: "index", fields: [], action: "/auth/facebook", submit: "login" }
+	else 
+		feed = []
+		mongoose.connect 'mongodb://localhost:27017/oryx', (err, db) ->
+				console.log "We are connected" if !err
+				User.findOne {_id : json.id}, 'friends', (err, friends) ->
+					for friend in friends
+						query = User.find {_id : friend._id}
+						query.select 'posts'
+						query.exec (err, posts) ->
+							feed.concat posts[-10..]
+		res.render 'feed.jade', {feed: [feed], name: req.user.displayName}
 	
 app.get '/addevent', (req, res) ->
 	res.render 'index.jade', {title: "add event", fields: ["email", "password"], action: "/auth", submit: "go" }
@@ -56,18 +65,10 @@ app.post '/addfriend', (req, res) ->
 				if !err
 					req.json result
 					
-app.get '/auth/facebook', passport.authenticate('facebook')
+app.post '/auth/facebook', passport.authenticate('facebook')
 
 app.get '/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/' }), (req, res) ->
-    store = (user) ->
-		mongoose.connect 'mongodb://localhost:27017/oryx', (err, db) ->	
-			console.log "We are connected" if !err
-			user.save (err, result) ->
-				assert.equal err, null 
-				console.log "Created a new user"
-	json = JSON.parse req.body
-	newuser = new User(json)
-	store newuser
+    
 	
 app.post '/addevent', (req, res) ->
 	store = (event) ->

@@ -1,0 +1,8 @@
+form(id = "myForm", action = "/addevent", method = "post", enctype="multipart/form")
+			Add a title: input(name="title" type="text" value="Title")
+			br
+			br
+			input(multiple="multiple", name="upload", type="file")
+			br
+			br
+			input(id = "submitButton", type ="submit", value="Upload")

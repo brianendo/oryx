@@ -1,0 +1,18 @@
+doctype
+html( lang = "en" )
+	include ./head.jade
+	+bootswatch("paper")
+	body
+		-var menu = { 'index': '/index', 'add event': '/addevent', 'signup': '/signup', 'sign in': '/signin' };
+		+nav("Oryx", "dropdown_menu")
+		each val, key in menu
+			if title == key
+				+nav_item( val, "active" ) #{key}
+			else
+				+nav_item( val) #{key}
+			+nav_item_dropdown( "#" )( label="More" )
+		br
+		br		
+		+form(#{fields}, #{action}, #{submit})
+		
+		

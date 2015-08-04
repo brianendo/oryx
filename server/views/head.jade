@@ -6,13 +6,13 @@ head
 	
 	title #{title}
 	
-	mixin form (fields, action) 
+	mixin form (fields, action, submit) 
 		form(id = "myForm", action = action, method = "post", enctype="application/json")
 			each val in fields
 				div.input-group
 					label(for = val)
 					input#val(name= val, type="text" value=val.toUpperCase())
-			button.btn(class = "btn-default", type ="submit", value="Submit")
+			button.btn(class = "btn-default", type ="submit", value=submit)
 				
 			
 	//- Navbar mixins

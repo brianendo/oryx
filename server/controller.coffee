@@ -17,6 +17,20 @@ passport = require 'passport'
 Event = require './models/event_model.coffee'
 User = require './models/user_model.coffee'
 
+`
+passport.use(new FacebookStrategy({
+    clientID: 975386195846106,
+    clientSecret: "247f2b170ff3429fe6a4cdebca425325",
+    callbackURL: "http://localhost:2999/auth/facebook/callback",
+    enableProof: false
+  },
+  function(accessToken, refreshToken, profile, done) {
+    User.findOrCreate({ facebookId: profile.id }, function (err, user) {
+      return done(err, user);
+    });
+  }
+));`
+
 MongoClient = mongo.MongoClient
 #ObjectId = require('mongodb').ObjectID
 
@@ -29,9 +43,11 @@ app.set('views', './views')
 app.set 'view engine', 'jade'
 
 app.get '/', (req, res) ->
-	res.render 'index.jade', {title: "index", fields: ["email", "password"] }
+	res.render 'index.jade', {title: "index", action: "/auth/facebook", submit: "login" }
 	
-		
+app.get '/addevent', (req, res) ->
+	res.render 'index.jade', {title: "add event", fields: ["email", "password"], action: "/auth", submit: "go" }
+			
 app.post '/addfriend', (req, res) ->
 	json = JSON.parse req.body
 	mongoose.connect 'mongodb://localhost:27017/oryx', (err, db) ->	
@@ -39,19 +55,20 @@ app.post '/addfriend', (req, res) ->
 			User.update {user: json.user}, { $push: {'friends': json.friend} }, (err, result) ->
 				if !err
 					req.json result
+					
+app.get '/auth/facebook', passport.authenticate('facebook')
 
-app.post './adduser', (req, res) ->
-	store = (user) ->
+app.get '/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/' }), (req, res) ->
+    store = (user) ->
 		mongoose.connect 'mongodb://localhost:27017/oryx', (err, db) ->	
 			console.log "We are connected" if !err
 			user.save (err, result) ->
 				assert.equal err, null 
-				console.log "Created a new event"
+				console.log "Created a new user"
 	json = JSON.parse req.body
 	newuser = new User(json)
 	store newuser
 	
-
 app.post '/addevent', (req, res) ->
 	store = (event) ->
 		mongoose.connect 'mongodb://localhost:27017/oryx', (err, db) ->	

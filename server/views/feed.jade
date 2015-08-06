@@ -1,0 +1,25 @@
+doctype
+html( lang = "en" )
+	include ./head.jade
+	body
+		-var menu = { 'index': '/', 'add event': '/addevent', 'signup': '/signup', 'sign in': '/signin' };
+		+nav("Oryx", "dropdown_menu")
+			each val, key in menu
+				if title == key
+					+nav_item( val, "active" ) #{key}
+				else
+					+nav_item( val) #{key}
+		div.container-fluid
+			div.col-sm-3
+				h3 Welcome #{name}
+				div.row
+					a(href = "profile")
+						h3 View your profile
+				
+				
+			div.col-md-3-offset
+				each event in feed
+					div.row(style = "background-image: #{event.image}; background-repeat: false;")
+						h2.eventtitle =event.title
+						p( style = "vertical-align:bottom;" ) =event.location
+			

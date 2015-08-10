@@ -11,6 +11,7 @@ assert = require 'assert'
 jade = require 'jade'
 passport = require 'passport'
 FacebookStrategy = require('passport-facebook').Strategy
+LocalStrategy = require('passport-local').Strategy
 bodyParser = require 'body-parser'
 cookieParser = require 'cookie-parser'
 logger = require 'morgan'
@@ -22,11 +23,14 @@ User = require './models/user_model.coffee'
 
 passport.serializeUser (user, done) ->
     console.log('serializeUser: ' + user.id)
-    done null, user
+    done null, user.username
 
 passport.deserializeUser (user, done) ->
-	done null, user.id
+	mongoose.connect 'mongodb://localhost:27017/oryx', (err, db) ->
+		User.findOne {username: user}, (err, user) ->
+			done null, user
 
+###
 passport.use new FacebookStrategy { clientID: 975386195846106, clientSecret: "247f2b170ff3429fe6a4cdebca425325", callbackURL: "http://jackpack.org:2999/auth/facebook/callback", enableProof: false }, (accessToken, refreshToken, profile, done) ->
 	console.log profile.id + ' is logging in'
 	mongoose.connect 'mongodb://localhost:27017/oryx', (err, db) ->
@@ -38,52 +42,78 @@ passport.use new FacebookStrategy { clientID: 975386195846106, clientSecret: "24
 					assert.equal err, null 
 					console.log "Created a new user"
 			return done(err, user)
+###
 
-MongoClient = mongo.MongoClient
-#ObjectId = require('mongodb').ObjectID
-
-title = ''
+passport.use new LocalStrategy (username, password, done) ->
+	mongoose.connect 'mongodb://localhost:27017/oryx', (err, db) ->
+		console.log 'We are connected' if !err
+		User.findOne { username: username }, (error, user) ->
+			if user == null
+				return done null, false, { message: 'Incorrect username.' }
+			if user.password != password
+				return done null, false, { message: 'Incorrect password.' }
+			return done null, user 
 
 app = express()
-app.locals.title = 'Oryx'
-app.set('views', './views')
-app.set 'view engine', 'jade'
-app.use express.static '/'
-app.use passport.initialize()
-app.use passport.session()
-#app.use logger()
-app.use cookieParser()
-app.use bodyParser()
-app.use methodOverride()
-app.use session({ secret: 'keyboard cat' })
+
+app.configure () ->
+	app.locals.title = 'Oryx'
+	app.set('views', './views')
+	app.set 'view engine', 'jade'
+	app.use express.static '/'
+	app.use session({ secret: 'keyboard cat' })
+	app.use passport.initialize()
+	app.use passport.session()
+	#app.use logger()
+	app.use cookieParser()
+	app.use bodyParser()
+	app.use bodyParser.urlencoded({ extended: true})
+	app.use methodOverride()
 
 app.get '/', (req, res) ->
-	#req.user = passport.deserializeUser
-	#console.log req.user
+	console.log req.user
 	if !req.user
-		res.render 'index.jade', {title: "index", fields: [], action: "/auth/facebook", submit: "login" }
+		res.render 'form', {title: "index", fields: ['username', 'password'], action: "/login", submit: "login" }
 	else
-		console.log req.user.id
-		###
+		console.log req.user.username
 		feed = []
-		mongoose.connect 'mongodb://localhost:27017/oryx', (err, db) ->
-			console.log "We are connected" if !err
-			User.findOne {_id : json.id}, 'friends', (err, friends) ->
-				for friend in friends
-					query = User.find {_id : friend._id}
-					query.select 'posts'
+			for friend in req.user.friends
+			    query = User.find {_id : friend._id}
+				    query.select 'posts'
 					query.exec (err, posts) ->
 						feed.concat posts[-10..]
-		res.render 'feed.jade', {feed: [feed], name: req.user.displayName}
-		###
+		res.render 'feed.jade', {feed: feed, name: req.user.username}
 	
 app.get '/logout', (req, res) ->
 	req.logout
 	res.redirect '/'
 
 app.get '/addevent', (req, res) ->
-	res.render 'index.jade', {title: "add event", fields: ["email", "password"], action: "/auth", submit: "go" }
-			
+	res.render 'form', {title: "add event", fields: ["email", "password"], action: "/auth", submit: "go" }
+
+app.get '/signup', (req, res) ->
+        res.render 'form', {title: "Sign Up", fields: ["username", "password"], action: "/signup", submit: "Create Account"}
+
+app.post '/signup', (req, res) ->
+	mongoose.connect 'mongodb://localhost:27017/oryx', (err, db) ->	
+            console.log "We are connected" if !err
+            newuser = new User({username: req.body.username, password: req.body.password})
+            newuser.save (err, result) ->
+                assert.equal err, null 
+                console.log "Added user"
+                res.redirect '/login'
+
+app.get '/user/:username', (req, res) ->
+    mongoose.connect 'mongodb://localhost:27017/oryx', (err, db) ->
+		User.findOne {username: req.params.username}, (err, user) ->
+			res.render 'user', {user: user}
+    
+app.get '/users', (req, res) ->
+    console.log req.user.username
+    mongoose.connect 'mongodb://localhost:27017/oryx', (err, db) ->
+	User.find (err, user) ->
+	    console.log user
+
 app.post '/addfriend', (req, res) ->
 	json = JSON.parse req.body
 	mongoose.connect 'mongodb://localhost:27017/oryx', (err, db) ->	
@@ -91,11 +121,19 @@ app.post '/addfriend', (req, res) ->
 			User.update {user: json.user}, { $push: {'friends': json.friend} }, (err, result) ->
 				if !err
 					req.json result
+
 					
 app.post '/auth/facebook', passport.authenticate('facebook')
 
 app.get '/auth/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/' }), (req, res) ->
     res.send 'Success'
+
+app.get '/login', (req, res) ->
+    res.render 'form', { title: "login", fields: ["username", "password"], action: "/login", submit: "login" }
+
+app.post '/login', passport.authenticate('local'), (req, res) ->
+    console.log req.user.username
+    res.redirect '/'
 	
 app.post '/addevent', (req, res) ->
 	store = (event) ->

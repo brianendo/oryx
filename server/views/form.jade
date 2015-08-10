@@ -1,0 +1,16 @@
+doctype
+html( lang = "en" )
+	include ./head.jade
+	body
+		-var menu = { 'Home': '/', 'Add Event': '/addevent', 'Sign Up': '/signup', 'Login': '/login' };
+		+nav("Oryx", "dropdown_menu")
+			each val, key in menu
+				if title == key
+					+nav_item( val, "active" ) #{key}
+				else
+					+nav_item( val) #{key}
+		div.container-fluid
+			div.col-md-3
+				+form(fields, action, submit)
+		
+		

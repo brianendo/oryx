@@ -1,6 +1,8 @@
 head
+	-var menu = { 'Home': '/', 'Add Event': '/addevent', 'Sign Up': '/signup', 'Login': '/login' };
 	link(rel="stylesheet", href="/css/bootstrap.min.css")
 	link(rel="stylesheet", href="/css/bootstrap-theme.min.css")
+	link(rel="stylesheet", href="http://maxcdn.bootstrapcdn.com/bootswatch/3.3.0/paper/bootstrap.min.css")
 	script(src="/js/bootstrap.min.js")
 	script(src="/js/jquery-1.7.1.min.js")
 	
@@ -8,14 +10,13 @@ head
 	
 	mixin form (fields, action, submit) 
 		- if (!submit) {submit = 'Submit';} else { submit = submit.toUpperCase(); }
-		form(id = "myForm", action = action, method = "post", enctype="application/json")
+		form(id = "myForm", action = action, method = "post")
 			each val in fields
 				div.form-group
-					label(for = val)
-					input#val(name= val, type="text" value=val.toUpperCase())
+					input#val(name= val, type="text", placeholder = val)
 			div.form-group
 				button(class = "btn btn-default", type ="submit") #{submit}
-	//- Navbar mixins
+        
 	mixin nav(name, id, style)
 		- var style = (typeof style === 'undefined') ? "default" : style
 		nav( role="navigation", class=["navbar", "navbar-" + style] )
@@ -43,6 +44,3 @@ head
 	mixin nav_header
 		li.dropdown-header
 			block
-	mixin bootswatch(theme)
-		link(href="//maxcdn.bootstrapcdn.com/bootswatch/3.3.0/" + theme + "/bootstrap.min.css", rel="stylesheet")
-	+bootswatch("paper")

@@ -1,0 +1,19 @@
+doctype
+html( lang = "en" )
+		include ./head.jade
+		div.container-fluid
+			.col-md-3-offset
+				table.table.table-hover
+					thead
+						tr
+							th First
+							th Last
+							th Username
+							th Bio
+					tbody
+						each user in users
+							tr
+								td = user.name.first
+								td = user.name.last
+								td = user.username
+								td = user.bio

@@ -1,13 +1,6 @@
 doctype
 html( lang = "en" )
-	include ./head.jade
-        body
-		+nav("Oryx", "dropdown_menu")
-			each val, key in menu
-				if title == key
-					+nav_item( val, "active" ) #{key}
-				else
-					+nav_item( val) #{key}
+	    include ./head.jade
             div.container
                 div.col-md-3-offset
                     h2 Welcome =username

@@ -1,8 +1,8 @@
 head
-	-var menu = { 'Home': '/', 'Add Event': '/addevent', 'Sign Up': '/signup', 'Login': '/login' };
+	-var menu = { 'Home': '/', 'Friends': '/friends', 'Sign Up': '/signup', 'Login': '/login' };
 	link(rel="stylesheet", href="/css/bootstrap.min.css")
 	link(rel="stylesheet", href="/css/bootstrap-theme.min.css")
-	link(rel="stylesheet", href="http://maxcdn.bootstrapcdn.com/bootswatch/3.3.0/paper/bootstrap.min.css")
+	//-link(rel="stylesheet", href="http://maxcdn.bootstrapcdn.com/bootswatch/3.3.0/paper/bootstrap.min.css")
 	script(src="/js/bootstrap.min.js")
 	script(src="/js/jquery-1.7.1.min.js")
 	
@@ -13,7 +13,10 @@ head
 		form(id = "myForm", action = action, method = "post")
 			each val in fields
 				div.form-group
-					input#val(name= val, type="text", placeholder = val)
+					if val == 'Date'
+						input#val(name = val, type="date")
+					else
+						input#val(name= val, type="text", placeholder = val)
 			div.form-group
 				button(class = "btn btn-default", type ="submit") #{submit}
         
@@ -26,7 +29,8 @@ head
 					span.icon-bar
 					span.icon-bar
 					span.icon-bar
-				a.navbar-brand(href="#")= name
+				a.navbar-brand(href="/", style= "padding-top:5px")
+					img(src = "/img/NavyLogo.png", height = "40px")
 			.collapse.navbar-collapse( id=id )
 				ul.nav.navbar-nav
 					block
@@ -44,3 +48,37 @@ head
 	mixin nav_header
 		li.dropdown-header
 			block
+	mixin alert( type )
+		if type==1
+			.alert.alert-success.alert-dismissible(role='alert')
+				button.close(type='button', data-dismiss='alert', aria-label='Close')
+				span(aria-hidden='true') ×
+				strong Success!
+					You have logged in
+		if type == 0
+			.alert.alert-danger.alert-dismissible(role='alert')
+				button.close(type='button', data-dismiss='alert', aria-label='Close')
+				span(aria-hidden='true') ×
+				strong Failure
+					Incorrect username or password
+		if type == 2
+			.alert.alert-warning.alert-dismissible(role='alert')
+				button.close(type='button', data-dismiss='alert', aria-label='Close')
+				span(aria-hidden='true') ×
+				strong Try Again
+					This username is already used
+		if type == 3
+			.alert.alert-success.alert-dismissible(role='alert')
+				button.close(type='button', data-dismiss='alert', aria-label='Close')
+				span(aria-hidden='true') ×
+				strong Success!
+					You successfully added a friend
+body
+	+nav("Oryx", "dropdown_menu")
+		each val, key in menu
+			if title == key
+				+nav_item( val, "active" ) #{key}
+			else
+				+nav_item( val) #{key}
+	if alert
+		+alert(alert)

@@ -1,5 +1,8 @@
 head
-	-var menu = { 'Home': '/', 'Friends': '/friends', 'Sign Up': '/signup', 'Login': '/login' };
+	if auth == 1
+		-var menu = { 'Home': '/', 'Friends': '/friends'};
+	else
+		-var menu = { 'Sign Up': '/signup', 'Login': '/login' };
 	link(rel="stylesheet", href="/css/bootstrap.min.css")
 	link(rel="stylesheet", href="/css/bootstrap-theme.min.css")
 	//-link(rel="stylesheet", href="http://maxcdn.bootstrapcdn.com/bootswatch/3.3.0/paper/bootstrap.min.css")
@@ -52,27 +55,27 @@ head
 		if type==1
 			.alert.alert-success.alert-dismissible(role='alert')
 				button.close(type='button', data-dismiss='alert', aria-label='Close')
-				span(aria-hidden='true') ×
+					span(aria-hidden='true') ×
 				strong Success!
-					You have logged in
+					p You have logged in
 		if type == 0
 			.alert.alert-danger.alert-dismissible(role='alert')
 				button.close(type='button', data-dismiss='alert', aria-label='Close')
-				span(aria-hidden='true') ×
+					span(aria-hidden='true') ×
 				strong Failure
-					Incorrect username or password
+					p Incorrect username or password
 		if type == 2
 			.alert.alert-warning.alert-dismissible(role='alert')
 				button.close(type='button', data-dismiss='alert', aria-label='Close')
-				span(aria-hidden='true') ×
+					span(aria-hidden='true') ×
 				strong Try Again
-					This username is already used
+					p This username is already used
 		if type == 3
 			.alert.alert-success.alert-dismissible(role='alert')
 				button.close(type='button', data-dismiss='alert', aria-label='Close')
-				span(aria-hidden='true') ×
+					span(aria-hidden='true') ×
 				strong Success!
-					You successfully added a friend
+					p You successfully added a friend
 body
 	+nav("Oryx", "dropdown_menu")
 		each val, key in menu

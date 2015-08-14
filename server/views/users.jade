@@ -13,7 +13,7 @@ html( lang = "en" )
 					tbody
 						each user in users
 							tr
-								td = user.name.first
-								td = user.name.last
-								td = user.username
-								td = user.bio
+								td #{user.name.first}
+								td #{user.name.last}
+								td #{user.username}
+								td #{user.bio}

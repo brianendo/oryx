@@ -6,8 +6,8 @@ mongo = require 'mongodb'
 #grid = mongo.Grid
 mongoose = require 'mongoose'
 assert = require 'assert'
-#formidable = require 'formidable'
-#util = require 'util'
+formidable = require 'formidable'
+util = require 'util'
 jade = require 'jade'
 passport = require 'passport'
 FacebookStrategy = require('passport-facebook').Strategy
@@ -56,26 +56,25 @@ passport.use new LocalStrategy (username, password, done) ->
 
 app = express()
 
-app.configure () ->
-	app.locals.title = 'Oryx'
-	app.set('views', './views')
-	app.set 'view engine', 'jade'
-	app.use '/js', express.static 'js'
-	app.use '/css', express.static 'css'
-	app.use '/img', express.static 'img'
-	app.use session({ secret: 'keyboard cat' })
-	app.use passport.initialize()
-	app.use passport.session()
-	#app.use logger()
-	app.use cookieParser()
-	app.use bodyParser()
-	app.use bodyParser.urlencoded({ extended: true})
-	app.use methodOverride()
+app.locals.title = 'Oryx'
+app.set('views', './views')
+app.set 'view engine', 'jade'
+app.use '/js', express.static 'js'
+app.use '/css', express.static 'css'
+app.use '/img', express.static 'img'
+app.use session({ secret: 'keyboard cat' })
+app.use passport.initialize()
+app.use passport.session()
+#app.use logger()
+app.use cookieParser()
+app.use bodyParser()
+app.use bodyParser.urlencoded({ extended: true})
+app.use methodOverride()
 
 app.get '/', (req, res) ->
 	console.log req.user
 	if typeof(req.user) == 'undefined'
-		res.render 'form', {alert: req.query.alert, title: "Home", fields: ['username', 'password'], action: "/login", submit: "login" }
+		res.render 'form', {auth: 0, alert: req.query.alert, title: "Home", fields: ['username', 'password'], action: "/login", submit: "login" }
 	else
 		console.log req.user.username
 		feed = []
@@ -84,7 +83,7 @@ app.get '/', (req, res) ->
 			query.select 'posts'
 			query.exec (err, posts) ->
 				feed.concat posts[-10..]
-		res.render 'feed.jade', {alert : req.query.alert, feed: feed, name: req.user.username}
+		res.render 'feed.jade', {auth: 1, alert : req.query.alert, feed: feed, name: req.user.username, req: req}
 	
 app.get '/logout', (req, res) ->
 	req.logout
@@ -118,7 +117,7 @@ app.get '/friends', (req, res) ->
 	console.log req.user.username
 	mongoose.connect 'mongodb://localhost:27017/oryx', (err, db) ->
 		User.find { username: {$in : req.user.friends} }, (err, users) ->
-			res.render 'users', {users: users, alert: req.query.alert}
+			res.render 'users', {auth: 1, users: users, alert: req.query.alert}
 
 app.post '/addfriend/:username', (req, res) ->
 	mongoose.connect 'mongodb://localhost:27017/oryx', (err, db) ->	
@@ -136,7 +135,7 @@ app.post '/auth/facebook', passport.authenticate('facebook')
 app.get '/login', (req, res) ->
     res.render 'form', { title: "Login", fields: ["username", "password"], action: "/login", submit: "login" }
 
-app.post '/login', passport.authenticate('local', { successRedirect: '/?alert=1', failureRedirect: '/login?alert=0', failureFlash: true }), (req, res) ->
+app.post '/login', passport.authenticate('local', { successRedirect: '/?alert=1', failureRedirect: '/login?alert=0', failureFlash: false }), (req, res) ->
 	console.log req.user.username
 	res.redirect '/?alert=1'
 

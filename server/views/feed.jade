@@ -1,13 +1,11 @@
 doctype
 html( lang = "en" )
 		include ./head.jade
-		div.container-fluid
-			div.col-sm-3
-				h3 Welcome #{name}
-				div.row
-					a(href = "/user")
-						h3 View your profile
-			div.col-md-3-offset
+		div.container
+			div.col-md-3
+				h3 Welcome 
+					a(href = "/user/" + req.user.username) #{name}
+			div.col-lg-6
 				.well.well-lg
 					form(action = "/addevent", method = "post", enctype="multipart/form")
 						.form-group
@@ -18,7 +16,7 @@ html( lang = "en" )
 							input(name="date" type="date")
 						.form-group
 							input(multiple="multiple", name="upload", type="file")
-					input(id = "submitButton", type ="submit", value="Create Event")
+						input.submit(id = "submitButton", type ="submit", value="Create Event")
 				ul.media-list
 					each event in feed
 						li.media
